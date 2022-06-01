@@ -12,9 +12,15 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
 import 'v-calendar/dist/style.css';
 import VCalendar from 'v-calendar';
+import VueTimepicker from 'vue3-timepicker'
+import 'vue3-timepicker/dist/VueTimepicker.css'
+import Datepicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 
 
 const app = createApp(App)
+app.use(Datepicker)
+app.use(VueTimepicker)
 app.use(VueCookies)
 app.use(VueKonva)
 app.use(VCalendar, {})
