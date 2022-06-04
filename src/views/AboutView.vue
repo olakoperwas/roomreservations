@@ -13,10 +13,10 @@
               :config="{
                 x: room.x,
                 y: room.y,
-                id: 'room.room_id',
+                id: room.roomId,
                 width: room.width,
                 height: room.height,
-                fill: getColor(room.roomId),
+                fill: room.color,
                 stroke: 'black',
               }"
             ></v-rect>
@@ -25,8 +25,7 @@
       </div>
       <div class="col-4">
         <div>
-            <Datepicker v-model="date" range inline/>
-            <button type="button" v-on:click="checkDate()">date</button>
+            <Datepicker v-model="date" @update:modelValue="updateColors()" range inline/>
         </div>
       </div>
   </div>
@@ -44,7 +43,7 @@ import Datepicker from '@vuepic/vue-datepicker';
             sDate: new Date(),
             eDate: "",
             floor: null,
-            floor_rooms: [],
+            floor_rooms: {},
             configKonva: {
               width: 800,
               height: 800
@@ -62,7 +61,12 @@ import Datepicker from '@vuepic/vue-datepicker';
         headers: {'Accept': 'application/json'}})
         const data = await response.json()
         this.floor = data
-        this.floor_rooms = this.floor.rooms
+        this.floor.rooms.forEach((r) => {
+            this.floor_rooms[r.roomId] = r
+            this.floor_rooms[r.roomId].color = 'grey'
+        }) 
+        console.log(this.floor_rooms)
+        console.log('CZYTO JEST WYWOLYWANE')
       } catch(error){
         console.error(error)
       }     
@@ -72,80 +76,56 @@ import Datepicker from '@vuepic/vue-datepicker';
         console.log(roomId)
         this.getRoomReservations(roomId)
     },
-    getColor(roomId) {
-    //    this.getRoomReservations(roomId)
-     return this.getRoomReservations(roomId)
-    },
-    checkDate() {
-      //to trzeba do jednej zmiennej jako stringa wrzucic ladnie zlozonego
-      this.sDate = new Date(this.date[0].getFullYear(),this.date[0].getMonth()+1, this.date[0].getDate(), this.date[0].getUTCHours(), this.date[0].getUTCMinutes())
-      //this.eDate = ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
-  //  d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) 
-      this.eDate = this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2)+' '+("0" + this.date[1].getUTCHours()).slice(-2)+':'+("0" + this.date[1].getUTCMinutes()).slice(-2)+':'+"00"
-      console.log(this.date)
-      console.log(this.date[0])
-      console.log(this.date[0].getDate())
-      console.log(this.date[0].getMonth()+1)
-      console.log(this.date[0].getFullYear())
-      console.log(this.date[0].getUTCMinutes())
-      console.log(this.date[0].getUTCHours())
-
-      console.log(this.sDate)
-      console.log(this.eDate)
-      console.log(this.date[0].toLocaleDateString())
-    },
-async getFloor(){
-      try{
-        const response = await fetch("http://localhost:8080/api/floors/get/?number=1", {
-        headers: {'Accept': 'application/json'}})
-        const data = await response.json()
-        this.floor = data
-        this.floor_rooms = this.floor.rooms
-      } catch(error){
-        console.error(error)
-      }      
-    },
- getRoomReservations(room_id){
-   var color ='grey'
-      console.log(this.date)
-      if(this.date[1]!=null) {
-        console.log('weszlo')
-      this.reservation = {
-            roomId:room_id,
-            startDate: this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+' '+("0" + this.date[0].getUTCHours()).slice(-2)+':'+("0" + this.date[0].getUTCMinutes()).slice(-2)+':'+"00",
-            endDate: this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2)+' '+("0" + this.date[1].getUTCHours()).slice(-2)+':'+("0" + this.date[1].getUTCMinutes()).slice(-2)+':'+"00"
-      }}
-      
-      console.log(this.id)
-      fetch('http://localhost:8080/api/reservations/room', {
-                method: 'POST',
-                headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify(this.reservation)
-                }).then(res => {
-                    console.log(res)
-                    return res.json()
-                    }).then(res => {
-                    console.log(res)                
-                    console.log('colorek '+color)
-                    if(res.length == 0)
-                      color = 'green'
-                    else
-                      color = 'red'})
-                      
-      console.log(this.id)
-    
-      
-console.log(color)      
-        return color
-      }
-      // else
-      //   return 'grey'      
-    },
-    
+  async getRoomReservations(room_id){
+        var color = 'grey'
+        if(this.date[1]!=null) {
+        this.reservation = {
+              roomId:room_id,
+              startDate: this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+' '+("0" + this.date[0].getUTCHours()).slice(-2)+':'+("0" + this.date[0].getUTCMinutes()).slice(-2)+':'+"00",
+              endDate: this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2)+' '+("0" + this.date[1].getUTCHours()).slice(-2)+':'+("0" + this.date[1].getUTCMinutes()).slice(-2)+':'+"00"
+        }}
+        console.log(room_id)
+        fetch('http://localhost:8080/api/reservations/room', {
+                  method: 'POST',
+                  headers: {
+                  'Accept': 'application/json, text/plain, */*',
+                  'Content-Type': 'application/json'
+                  },
+                  credentials: 'same-origin',
+                  body: JSON.stringify(this.reservation)
+                  })
+              .then(res => {
+                      console.log(res)
+                      return res.json()
+                    })
+              .then(res => {
+                      console.log(res)                
+                      if(res.length == 0){
+                        color = 'green'
+                      }
+                      else
+                        color = 'red'
+                      this.floor_rooms[room_id].color = color
+                      console.log(this.floor_rooms[room_id])
+                    })
+              .catch(error => conosle.log(error))
+          return color
+      },
+      async getColor(roomId) {
+        var col = this.getRoomReservations(roomId)
+        return col
+      },
+      updateColors(){
+        console.log("wszedlem do update")
+        for(const [key, value] of Object.entries(this.floor_rooms)){
+          const col = this.getRoomReservations(key)
+          // console.log("zwrocony kolor" + col)
+          // value['color'] = col
+          // this.floor_rooms[key] = value
+          console.log(this.floor_rooms[key])
+        }
+      },   
+    },    
         components: {
             AppHeaderMain,
             Datepicker
