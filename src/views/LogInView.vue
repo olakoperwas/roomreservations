@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import AppHeader from '../components/AppHeader.vue'
+import AppHeader from '../components/header-bar-link.vue'
     export default {
         name: 'Login',
         data() {
