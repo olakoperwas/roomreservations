@@ -1,83 +1,61 @@
 <template>
    <AppHeader/>
-    <div id="login">       
-        <h1>Login</h1>
-        <input type="text" name="username" v-model="input.username" placeholder="Username" />
-        <input type="password" name="password" v-model="input.password" placeholder="Password" />
-        <button type="button" v-on:click="login()">Login</button>
-    </div>
+    <b-container id="Login">       
+        <b-row class="justify-content-md-center">
+            <b-col cols="6">
+                <h1>Witaj w systemie rezerwacji</h1>
+                <h2>By rozpocząć, zaloguj się, używając konta Microsoft</h2>
+                    <b-button class="btn btn-light" @click="SignIn()">                            
+                        <div id="wpo365OpenIdRedirect" class="wpo365-mssignin-wrapper">
+                            <div class="wpo365-mssignin-spacearound">
+                                <div class="wpo365-mssignin-button" onclick="window.wpo365.pintraRedirect.toMsOnline()">
+                                    <div class="wpo365-mssignin-logo">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
+                                            <title>MS-SymbolLockup</title>
+                                            <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+                                            <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+                                            <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+                                            <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                                        </svg>
+                                    </div>
+                                <div class="wpo365-mssignin-label">Sign in with Microsoft</div>
+                            </div>
+                        </div>
+                    </div>
+                </b-button>
+            </b-col>
+        </b-row>
+    </b-container>
 </template>
 
 <script>
 import AppHeader from '../components/header-bar-link.vue'
+import authAzure from '../services/auth-azure.service';
     export default {
         name: 'Login',
         data() {
-            return {
-                input: {
-                    username: "",
-                    password: ""
-                },
-                logs: {
-                    email: "",
-                    password: ""
-                }
-            }
         },
         methods: {
-            login() {
-                this.email = this.input.username
-                this.password = this.input.password
-                this.logs = {
-                    email:this.email,
-                    password:this.password
-                }
-                fetch('http://localhost:8080/auth/login', {
-                method: 'POST',
-                headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify(this.logs)
-                })  
-                //.then(res => console.log(res.headers.get('Set-Cookie'))) 
-                .then(res => {
-                    console.log(res)
-                    return res.json()
-                    })
-                          
-                //.then(res => this.$cookies.set("accessToken", res.cookie, ))
-                //.then(res => console.log(res))
-                .then(res => {
-                    console.log(res)
-                    if (res.status == 'SUCCESS') {
-                        this.$emit("authenticated", true);
-                        this.$router.replace({ name: "home" });
+            async SignIn() {
+                await authAzure.login().then(() => {
+                    authAzure.appSignIn()
+                    const token = authAzure.accessToken
+                    this.authenticateUserOnServer(token)
+                })
+                this.account = authAzure.user();
+                this.$emitter.emit('login', this.account);
+            }, 
+            async authenticateUserOnServer(token){
+                await fetch("http://192.168.196.9:8080/api/authenticate",{
+                    headers:  {
+                        'Authorization' : 'Bearer ' + token
                     }
-                    else {
-                        console.log("The username and / or password is incorrect");
-                    }
-                })                
-                //.then(res => this.$emit('log', res))
-
-                // this.logs = {
-                // email: '',
-                // password: ''
-                // }
-                
-
-                // if(this.input.username != "" && this.input.password != "") {
-                //     if(this.input.username == "stud@localhost.com" && this.input.password == "Stud") {
-                //         this.$emit("authenticated", true);
-                //         this.$router.replace({ name: "home" });
-                //     } else {
-                //         console.log("The username and / or password is incorrect");
-                //     }
-                // } else {
-                //     console.log("A username and password must be present");
-                // }
-            },
+                }).then(res => {
+                    if(res.status == 200){
+                        this.$router.push({ name: "reservations" });
+                    }    
+                })
+            }    
         },
         components: {
            AppHeader
@@ -86,12 +64,81 @@ import AppHeader from '../components/header-bar-link.vue'
 </script>
 
 <style scoped>
-    #login {
-        width: 500px;
+    #Login {
         border: 1px solid #CCCCCC;
         background-color: #FFFFFF;
         margin: auto;
         margin-top: 200px;
         padding: 20px;
+        align-content: center;
     }
+     .wpo365-mssignin-wrapper {
+                    box-sizing: border-box;
+                    display: block;
+                    width: 100%;
+                    padding: 12px 12px 24px 12px;
+                    text-align: center;
+                }
+                .wpo365-mssignin-spacearound {
+                    display: inline-block;
+                }
+                .wpo365-mssignin-wrapper form {
+                    display: none;
+                }
+                .wpo365-mssignin-button {
+                    border: 1px solid #8c8c8c;
+                    background: #ffffff;
+                    display: flex;
+                    display: -webkit-box;
+                    display: -moz-box;
+                    display: -webkit-flex;
+                    display: -ms-flexbox;
+                    -webkit-box-align: center;
+                    -moz-box-align: center;
+                    -ms-flex-align: center;
+                    -webkit-align-items: center;
+                    align-items: center;
+                    -webkit-box-pack: center;
+                    -moz-box-pack: center;
+                    -ms-flex-pack: center;
+                    -webkit-justify-content: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    max-height: 41px;
+                    min-height: 41px;
+                    height: 41px;
+                }
+                .wpo365-mssignin-logo {
+                    padding-left: 12px;
+                    padding-right: 6px;
+                    -webkit-flex-shrink: 1;
+                    -moz-flex-shrink: 1;
+                    flex-shrink: 1;
+                    width: 21px;
+                    height: 21px;
+                    box-sizing: content-box;
+                    display: flex;
+                    display: -webkit-box;
+                    display: -moz-box;
+                    display: -webkit-flex;
+                    display: -ms-flexbox;
+                    -webkit-box-pack: center;
+                    -moz-box-pack: center;
+                    -ms-flex-pack: center;
+                    -webkit-justify-content: center;
+                    justify-content: center;
+                }
+                .wpo365-mssignin-label {
+                    padding-left: 6px;
+                    padding-right: 12px;
+                    font-weight: 600;
+                    color: #5e5e5e;
+                    font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
+                    font-size: 15px;
+                    -webkit-flex-shrink: 1;
+                    -moz-flex-shrink: 1;
+                    flex-shrink: 1;
+                    height: 21px;
+                    line-height: 21px;
+                }
 </style>

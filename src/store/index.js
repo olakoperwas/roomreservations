@@ -20,6 +20,11 @@ const store = createStore({
     setAccessToken(state, token){
       state.accessToken = token;
     }
+  },
+  getters: {
+    accessToken(state){
+      return state.accessToken;
+    }
   }
 });
 

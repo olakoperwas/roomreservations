@@ -8,7 +8,6 @@
 
 <script>
 import AppHeaderMain from '../components/AppHeaderMain.vue'
-import { mapMutations } from 'vuex';
     export default {
         name: 'Home',
         
@@ -19,23 +18,13 @@ import { mapMutations } from 'vuex';
             };
         },
         created(){
-            this.$emitter.on(
-            'login', (account) => {
-                this.account = account;
-                console.log(this.account);
-               },
-            ).bind(this),
-                this.$emitter.on('logout', () => {
-                    console.log('logging out');
-                    this.account = undefined;
-                }
-            ).bind(this);
+
         },
         methods: {
-            ...mapMutations(['setAccessToken']),
+
         },
         components: {
-            AppHeaderMain,ś
+            AppHeaderMain,
         }
     }
 </script>

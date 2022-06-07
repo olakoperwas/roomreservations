@@ -14,10 +14,28 @@
             <router-link class="nav-link" :to="{ path: 'reservations' }" :class="{active: $route.name==='reservations'}">My reservations</router-link>
         </li>
         <li class="nav-item">
-          <router-link to="/login" v-on:click="$root.logout()"><b-button variant="dark">Sign Out</b-button></router-link>
+          <b-button variant="dark" @click="logout()">Sign Out</b-button>
         </li>
       </ul>
     </div>
   </div>
 </nav>
 </template>
+<script>
+import authAzure from '../services/auth-azure.service';
+    export default {
+        name: 'Login',
+        data() {
+        },
+        methods: {
+            async logout() {
+                await authAzure.logout().then( () => {
+                   console.log("user is logout")
+                    this.account = null;
+                    this.$emitter.emit('login', null);
+                    this.$router.push('Login') 
+                })
+              },      
+        },
+    }
+</script>
