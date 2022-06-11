@@ -1,6 +1,21 @@
 <template>
   <AppHeaderMain/>
   <div class="container">
+    <b-row>
+        <g-gantt-chart 
+        :chart-start="ganttChartStart"
+        :chart-end="ganttChartEnd"
+        precision="hour"
+        bar-start="myStart"
+        bar-end="myEnd"
+        >
+        <g-gantt-row 
+          v-for="row in reservations"
+          :key="row.label"
+          :label="row.label"
+          :bars="row.bars"/>
+        </g-gantt-chart>
+    </b-row>
     <p>Office plan</p>
     <div class="row justify-content-md-center">
       <div class="col-8" :key="date">
@@ -25,7 +40,7 @@
       </div>
       <div class="col-4">
         <div>
-            <Datepicker v-model="date" @update:modelValue="updateReservationsState()" range inline/>
+            <Datepicker v-model="date" @update:modelValue="updatereservations()" range inline/>
         </div>
         <div>
           <b-button @click="reserveRoom()">Reserve</b-button>
@@ -39,7 +54,7 @@
 import AppHeaderMain from '../components/AppHeaderMain.vue'
 import Datepicker from '@vuepic/vue-datepicker';
 import authAzure from '../services/auth-azure.service';
-import store from '../store/index'
+import {ref} from "vue";
     export default {
         name: 'About',       
         data() {
@@ -54,18 +69,48 @@ import store from '../store/index'
               width: 800,
               height: 800
             },
-            reservation: {
-              roomId: "",
-              startDate: "",
-              endDate: ""
-            },
             selectedRoom: null,
+            ganttChartStart: "2020-03-01 07:00",
+            ganttChartEnd: "2020-03-01 17:00",
+            reservations: {}
+              // {
+              //   label: "Room 1",
+              //   bars: ref([
+              //     {
+              //       myStart: "2020-03-01 13:00",
+              //       myEnd: "2020-03-01 14:00",
+              //       ganttBarConfig: {
+              //         id: "unique id 1",
+              //         hasHandless: true,
+              //         label: "Room 1 Date 1",
+              //         style: {
+              //           background: "3e09b69",
+              //           borderRadius: "20px",
+              //           color: "balck"
+              //         }
+              //       }
+              //     },
+              //       {
+              //       myStart: "2020-03-01 15:00",
+              //       myEnd: "2020-03-02 16:30",
+              //       ganttBarConfig: {
+              //         id: "unique id 2",
+              //         hasHandless: true,
+              //         label: "Room 1 Date 1",
+              //         style: {
+              //           background: "3e09b69",
+              //           borderRadius: "20px",
+              //           color: "balck"
+              //         }
+              //       }
+              //     }
+              //   ])
+              // }
           };
         },
   async mounted() {
     this.token = await authAzure.acquireToken()
-    try{
-        const response = await fetch("http://192.168.196.9:8080/api/floor?number=1", {
+        await fetch("http://192.168.196.9:8080/api/floor?number=1", {
           headers: {
             'Accept': 'application/json',
             'X-My-Custom-Header': 'value-v',
@@ -73,18 +118,16 @@ import store from '../store/index'
             }
           //  credentials: 'same-origin'
           })
-        const data = await response.json()
-        this.floor = data
-        this.floor.rooms.forEach((r) => {
-            this.floor_rooms[r.roomId] = r
-            this.floor_rooms[r.roomId].color = 'grey'
-            this.floor_rooms[r.roomId].stroke = 'white'
-        }) 
-        console.log(this.floor_rooms)
-        console.log('CZYTO JEST WYWOLYWANE')
-      } catch(error){
-        console.error(error)
-      }    
+          .then(response => response.json())
+          .then(data => {
+            this.floor = data
+            this.floor.rooms.forEach((r) => {
+                this.floor_rooms[r.roomId] = r
+                this.floor_rooms[r.roomId].color = 'grey'
+                this.floor_rooms[r.roomId].stroke = 'white'
+            })
+          })
+          .catch(err => console.log(err))  
   },
   methods: {
     handleClickOnRoom(roomId) {
@@ -96,15 +139,18 @@ import store from '../store/index'
        // this.getRoomReservations(roomId)
     },
   async getRoomReservations(room_id){
-        var color = 'grey'
         if(this.date[1]!=null) {
-        this.reservation = {
-              roomId:room_id,
-              startDate: this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+' '+("0" + this.date[0].getUTCHours()).slice(-2)+':'+("0" + this.date[0].getUTCMinutes()).slice(-2)+':'+"00",
-              endDate: this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2)+' '+("0" + this.date[1].getUTCHours()).slice(-2)+':'+("0" + this.date[1].getUTCMinutes()).slice(-2)+':'+"00"
-        }}
+          const bodyRes = {
+                roomId:room_id,
+                startDate: this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+' '+("0" + this.date[0].getUTCHours()).slice(-2)+':'+("0" + this.date[0].getUTCMinutes()).slice(-2)+':'+"00",
+                endDate: this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2)+' '+("0" + this.date[1].getUTCHours()).slice(-2)+':'+("0" + this.date[1].getUTCMinutes()).slice(-2)+':'+"00",
+          }
+        this.ganttChartEnd = bodyRes.endDate.slice(0, -8) + "23:59"
+        this.ganttChartStart = bodyRes.startDate.slice(0, -8) + "00:01"
+        console.log(this.ganttChartStart)
+        console.log(this.ganttChartEnd)
         console.log(room_id)
-        fetch('http://192.168.196.9:8080/api/reservations/room', {
+        await fetch('http://192.168.196.9:8080/api/reservations/room', {
                   method: 'POST',
                   headers: {
                   'Accept': 'application/json, text/plain, */*',
@@ -112,25 +158,36 @@ import store from '../store/index'
                   'Authorization' : 'Bearer ' + this.token
                   },
                   credentials: 'same-origin',
-                  body: JSON.stringify(this.reservation)
+                  body: JSON.stringify(bodyRes)
                   })
+              .then(res => res.json())
               .then(res => {
-                      console.log(res)
-                      return res.json()
-                    })
-              .then(res => {
-                      console.log(res)                
-                      if(res.length == 0){
-                        color = 'green'
-                      }
-                      else
-                        color = 'red'
-                      this.floor_rooms[room_id].color = color
-                      console.log(this.floor_rooms[room_id])
-                    })
+                  const barsColl = res.map( r => {
+                        return {
+                          myStart: r.startDate.slice(0, -3),
+                          myEnd: r.endDate.slice(0, -3),
+                          ganttBarConfig: {
+                            id: r.id,
+                            hasHandless: true,
+                            label: r.ownerEmail
+                          }
+                        }
+                  })
+                  this.reservations[room_id] = {
+                    label: this.floor_rooms[room_id].name,
+                    bars: ref(barsColl)
+                  }
+                  console.log(this.reservations)
+                })
               .catch(error => conosle.log(error))
-          return color
+        }
       },
+  async updatereservations(){
+    this.updateReservationsState()
+    this.floor.rooms.forEach((r) =>
+        this.getRoomReservations(r.roomId)
+    )
+  },
   async updateReservationsState(){
       if(this.date[1]!=null) {
         const reservationFrame = {
@@ -178,6 +235,7 @@ import store from '../store/index'
       body: JSON.stringify(body)
     }).then(() => {
         this.updateReservationsState()
+        this.getRoomReservations(body.roomId)
     })
   },
   selectRoom(room_id){

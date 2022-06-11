@@ -16,6 +16,7 @@ import '@vuepic/vue-datepicker/dist/main.css';
 import Emitter from 'tiny-emitter';
 import store from './store';
 import authAzure from './services/auth-azure.service'
+import ganttastic from '@infectoone/vue-ganttastic'
 
 
 const app = createApp(App)
@@ -25,6 +26,7 @@ app.use(VueCookies)
 app.use(VueKonva)
 app.use(VCalendar, {})
 app.use(BootstrapVue3)
+app.use(ganttastic)
 app.use(router)
 app.use(authAzure.init())
 //app.config.globalProperties.$authAzureInstance = authAzure.init();
