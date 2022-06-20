@@ -1,7 +1,7 @@
 <template>
   <AppHeaderMain/>
   <div class="container">
-    <b-row>
+    <b-row class="mt-5">
         <g-gantt-chart 
         :chart-start="ganttChartStart"
         :chart-end="ganttChartEnd"
@@ -139,14 +139,14 @@ import {ref} from "vue";
        // this.getRoomReservations(roomId)
     },
   async getRoomReservations(room_id){
+        this.ganttChartStart = this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+ " 00:01"
+        this.ganttChartEnd = this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2) + " 23:59"
         if(this.date[1]!=null) {
           const bodyRes = {
                 roomId:room_id,
-                startDate: this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+' '+("0" + this.date[0].getUTCHours()).slice(-2)+':'+("0" + this.date[0].getUTCMinutes()).slice(-2)+':'+"00",
-                endDate: this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2)+' '+("0" + this.date[1].getUTCHours()).slice(-2)+':'+("0" + this.date[1].getUTCMinutes()).slice(-2)+':'+"00",
+                startDate: this.ganttChartStart + ':00',
+                endDate: this.ganttChartEnd + ':00',
           }
-        this.ganttChartEnd = bodyRes.endDate.slice(0, -8) + "23:59"
-        this.ganttChartStart = bodyRes.startDate.slice(0, -8) + "00:01"
         console.log(this.ganttChartStart)
         console.log(this.ganttChartEnd)
         console.log(room_id)
@@ -179,7 +179,7 @@ import {ref} from "vue";
                   }
                   console.log(this.reservations)
                 })
-              .catch(error => conosle.log(error))
+              .catch(error => console.log(error))
         }
       },
   async updatereservations(){

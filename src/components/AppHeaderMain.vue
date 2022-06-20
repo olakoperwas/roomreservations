@@ -6,7 +6,12 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 nav-tabs">
+        <li class="nav-item">
+           <span class="navbar-text nav-link disabled">
+              {{user}}
+          </span>
+        </li>
         <li class="nav-item">
             <router-link class="nav-link" :to="{ path: 'home' }" :class="{active: $route.name==='home'}">Home</router-link>
         </li>
@@ -26,6 +31,9 @@ import authAzure from '../services/auth-azure.service';
     export default {
         name: 'Login',
         data() {
+          return {
+            user: authAzure.user().username
+          }
         },
         methods: {
             async logout() {

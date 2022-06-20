@@ -17,17 +17,22 @@ const router = createRouter({
             // } 
         } else {
             console.log('already authenticated user:');
-            return {name: 'reservations'}
+            return {name: 'home'}
         }
       }         
     },
     {
-      path: '/reservations',
-      name: 'reservations',
+      path: '/home',
+      name: 'home',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/FloorView.vue')
+    },
+    {
+      path: '/reservations',
+      name: 'reservations',
+      component: () => import('../views/MyReservations.vue')
     }
   ]
 })
