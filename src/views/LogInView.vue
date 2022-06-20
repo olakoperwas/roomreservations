@@ -46,7 +46,7 @@ import authAzure from '../services/auth-azure.service';
                 this.$emitter.emit('login', this.account);
             }, 
             async authenticateUserOnServer(token){
-                await fetch("http://192.168.196.9:8080/api/authenticate",{
+                await fetch("http://localhost:8080/api/authenticate",{
                     headers:  {
                         'Authorization' : 'Bearer ' + token
                     }

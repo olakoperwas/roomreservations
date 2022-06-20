@@ -115,7 +115,7 @@ import {ref} from "vue";
         },
   async mounted() {
     this.token = await authAzure.acquireToken()
-        await fetch("http://192.168.196.9:8080/api/floor?number=1", {
+        await fetch("http://localhost:8080/api/floor?number=1", {
           headers: {
             'Accept': 'application/json',
             'X-My-Custom-Header': 'value-v',
@@ -157,7 +157,7 @@ import {ref} from "vue";
         console.log(this.ganttChartStart)
         console.log(this.ganttChartEnd)
         console.log(room_id)
-        await fetch('http://192.168.196.9:8080/api/reservations/room', {
+        await fetch('http://localhost:8080/api/reservations/room', {
                   method: 'POST',
                   headers: {
                   'Accept': 'application/json, text/plain, */*',
@@ -202,7 +202,7 @@ import {ref} from "vue";
               startDate: this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+' '+("0" + this.date[0].getUTCHours()).slice(-2)+':'+("0" + this.date[0].getUTCMinutes()).slice(-2)+':'+"00",
               endDate: this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2)+' '+("0" + this.date[1].getUTCHours()).slice(-2)+':'+("0" + this.date[1].getUTCMinutes()).slice(-2)+':'+"00"
         }
-        await fetch('http://192.168.196.9:8080/api/reservations/floor',{
+        await fetch('http://localhost:8080/api/reservations/floor',{
             method: 'POST',
             headers:{
               'Authorization' : 'Bearer ' + this.token,
@@ -234,7 +234,7 @@ import {ref} from "vue";
         startDate: this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+' '+("0" + this.date[0].getUTCHours()).slice(-2)+':'+("0" + this.date[0].getUTCMinutes()).slice(-2)+':'+"00",
         endDate: this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2)+' '+("0" + this.date[1].getUTCHours()).slice(-2)+':'+("0" + this.date[1].getUTCMinutes()).slice(-2)+':'+"00"
     }
-    await fetch('http://192.168.196.9:8080/api/reservation/save',{
+    await fetch('http://localhost:8080/api/reservation/save',{
       method: 'POST',
       headers: {
         'Authorization' : 'Bearer ' + this.token,
