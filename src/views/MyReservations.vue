@@ -15,11 +15,17 @@
                 </b-tr>
             </b-thead>
             <b-tbody>
-                <b-tr v-for="reservation in reservations">
+                <b-tr v-if="!isLoading" v-for="reservation in reservations">
                     <b-td>{{reservation.id}}</b-td>
                     <b-td>{{reservation.room.number}} : {{reservation.room.name}}</b-td>
                     <b-td>{{reservation.startDate}}</b-td>
                     <b-td>{{reservation.endDate}}</b-td>
+                </b-tr>
+                <b-tr v-else>
+                        <b-th>
+                             <b-spinner small type="grow"></b-spinner>
+                            Loading..
+                        </b-th>
                 </b-tr>
             </b-tbody>
     </b-table-simple>
@@ -34,7 +40,8 @@
         name: "My reservations",
         data() {
             return {
-                reservations: []
+                reservations: [],
+                isLoading: false
             }
         },
         async mounted() {
@@ -42,6 +49,7 @@
         },
         methods:{
             async getReservations(){
+                this.isLoading = true
                 fetch("http://192.168.196.9:8080/api/reservations/user", {
                     method: 'GET',
                     headers: {
@@ -53,7 +61,11 @@
                   })
                   .then(response => response.json())
                   .then(responce => this.reservations = responce)
-                  .catch((error) => console.log(error))
+                  .then(() => this.isLoading = false)
+                  .catch((error) => {
+                    this.isLoading = false
+                    console.log(error)
+                    })
             }
         }
         ,    

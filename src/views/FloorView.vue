@@ -43,7 +43,11 @@
             <Datepicker v-model="date" @update:modelValue="updatereservations()" range inline/>
         </div>
         <div>
-          <b-button @click="reserveRoom()">Reserve</b-button>
+          <b-button v-if="!isLoading" @click="reserveRoom()">Reserve</b-button>
+          <b-button v-else variant="primary" disabled>
+            <b-spinner small type="grow"></b-spinner>
+              Loading...
+          </b-button>
         </div>
 
       </div>
@@ -69,6 +73,7 @@ import {ref} from "vue";
               width: 800,
               height: 800
             },
+            isLoading: false,
             selectedRoom: null,
             ganttChartStart: "2020-03-01 07:00",
             ganttChartEnd: "2020-03-01 17:00",
@@ -170,7 +175,7 @@ import {ref} from "vue";
                           myEnd: r.endDate.slice(0, -3),
                           ganttBarConfig: {
                             id: r.id,
-                            hasHandless: true,
+                            hasHandless: false,
                             label: r.ownerEmail
                           }
                         }
@@ -221,6 +226,8 @@ import {ref} from "vue";
       }
   },
   async reserveRoom(){
+    this.isLoading = true;
+    console.log("ładuje się")
     const body = {
         roomId: this.selectedRoom,
         participantUsers: [],
@@ -238,6 +245,9 @@ import {ref} from "vue";
     }).then(() => {
         this.updateReservationsState()
         this.getRoomReservations(body.roomId)
+    }).then(()=>this.isLoading = false)
+    .catch((error) => {
+      this.isLoading = false
     })
   },
   selectRoom(room_id){
