@@ -60,7 +60,7 @@ import {ref} from "vue";
         data() {
           return {
             id:1,
-            date: new Date(),
+            date: [new Date(), new Date()],
             sDate: new Date(),
             eDate: "",
             floor: null,
@@ -127,7 +127,9 @@ import {ref} from "vue";
                 this.floor_rooms[r.roomId].stroke = 'white'
             })
           })
+          .then(() =>this.updatereservations() )
           .catch(err => console.log(err))  
+
   },
   methods: {
     handleClickOnRoom(roomId) {
