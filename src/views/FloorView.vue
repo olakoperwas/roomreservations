@@ -1,7 +1,7 @@
 <template>
   <AppHeaderMain/>
   <div class="container">
-    <b-row>
+    <b-row class="mt-5">
         <g-gantt-chart 
         :chart-start="ganttChartStart"
         :chart-end="ganttChartEnd"
@@ -87,7 +87,11 @@
             <Datepicker v-model="date" @update:modelValue="updatereservations()" range inline/>
         </div>
         <div>
-          <b-button @click="reserveRoom()">Reserve</b-button>
+          <b-button v-if="!isLoading" @click="reserveRoom()">Reserve</b-button>
+          <b-button v-else variant="primary" disabled>
+            <b-spinner small type="grow"></b-spinner>
+              Loading...
+          </b-button>
         </div>
 
       </div>
@@ -109,7 +113,7 @@ import {ref} from "vue";
         data() {
           return {
             id:1,
-            date: new Date(),
+            date: [new Date(), new Date()],
             sDate: new Date(),
             eDate: "",
             floor: null,
@@ -118,6 +122,7 @@ import {ref} from "vue";
               width: 800,
               height: 800
             },
+            isLoading: false,
             selectedRoom: null,
             ganttChartStart: "2020-03-01 07:00",
             ganttChartEnd: "2020-03-01 17:00",
@@ -177,7 +182,9 @@ import {ref} from "vue";
                 this.floor_rooms[r.roomId].name = r.name
             })
           })
+          .then(() =>this.updatereservations() )
           .catch(err => console.log(err))  
+
   },
   methods: {
     handleClickOnRoom(roomId) {
@@ -188,14 +195,14 @@ import {ref} from "vue";
         this.floor_rooms[roomId].stroke = 'black'
     },
   async getRoomReservations(room_id){
+        this.ganttChartStart = this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+ " 00:01"
+        this.ganttChartEnd = this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2) + " 23:59"
         if(this.date[1]!=null) {
           const bodyRes = {
                 roomId:room_id,
-                startDate: this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+' '+("0" + this.date[0].getUTCHours()).slice(-2)+':'+("0" + this.date[0].getUTCMinutes()).slice(-2)+':'+"00",
-                endDate: this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2)+' '+("0" + this.date[1].getUTCHours()).slice(-2)+':'+("0" + this.date[1].getUTCMinutes()).slice(-2)+':'+"00",
+                startDate: this.ganttChartStart + ':00',
+                endDate: this.ganttChartEnd + ':00',
           }
-        this.ganttChartEnd = bodyRes.endDate.slice(0, -8) + "23:59"
-        this.ganttChartStart = bodyRes.startDate.slice(0, -8) + "00:01"
         console.log(this.ganttChartStart)
         console.log(this.ganttChartEnd)
         console.log(room_id)
@@ -217,7 +224,7 @@ import {ref} from "vue";
                           myEnd: r.endDate.slice(0, -3),
                           ganttBarConfig: {
                             id: r.id,
-                            hasHandless: true,
+                            hasHandless: false,
                             label: r.ownerEmail
                           }
                         }
@@ -228,7 +235,7 @@ import {ref} from "vue";
                   }
                   console.log(this.reservations)
                 })
-              .catch(error => conosle.log(error))
+              .catch(error => console.log(error))
         }
       },
   async updatereservations(){
@@ -268,6 +275,8 @@ import {ref} from "vue";
       }
   },
   async reserveRoom(){
+    this.isLoading = true;
+    console.log("ładuje się")
     const body = {
         roomId: this.selectedRoom,
         participantUsers: [],
@@ -285,6 +294,9 @@ import {ref} from "vue";
     }).then(() => {
         this.updateReservationsState()
         this.getRoomReservations(body.roomId)
+    }).then(()=>this.isLoading = false)
+    .catch((error) => {
+      this.isLoading = false
     })
   },
   selectRoom(room_id){
