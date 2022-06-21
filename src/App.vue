@@ -4,6 +4,7 @@
             <router-link v-if="authenticated" to="/login" v-on:click="logout()" replace>Logout</router-link>
         </div> -->
         <router-view @authenticated="setAuthenticated" />
+        <notifications />
     </div>
 </template>
 
