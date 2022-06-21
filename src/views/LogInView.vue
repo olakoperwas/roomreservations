@@ -4,7 +4,8 @@
         <b-row class="justify-content-md-center">
             <b-col cols="6">
                 <h1>Witaj w systemie rezerwacji</h1>
-                <h2>By rozpocząć, zaloguj się, używając konta Microsoft</h2>
+                <h3>By rozpocząć, zaloguj się, używając konta Microsoft</h3>
+                <div class="col-md-12 text-center">
                     <b-button class="btn btn-light" @click="SignIn()">                            
                         <div id="wpo365OpenIdRedirect" class="wpo365-mssignin-wrapper">
                             <div class="wpo365-mssignin-spacearound">
@@ -23,6 +24,7 @@
                         </div>
                     </div>
                 </b-button>
+                </div>
             </b-col>
         </b-row>
     </b-container>
@@ -46,7 +48,7 @@ import authAzure from '../services/auth-azure.service';
                 this.$emitter.emit('login', this.account);
             }, 
             async authenticateUserOnServer(token){
-                await fetch("http://192.168.196.9:8080/api/authenticate",{
+                await fetch("http://localhost:8080/api/authenticate",{
                     headers:  {
                         'Authorization' : 'Bearer ' + token
                     }
@@ -65,12 +67,24 @@ import authAzure from '../services/auth-azure.service';
 
 <style scoped>
     #Login {
-        border: 1px solid #CCCCCC;
-        background-color: #FFFFFF;
+        border: 1px solid #f5f2f2;
+        background-color: #fdfdfd;
         margin: auto;
         margin-top: 200px;
         padding: 20px;
         align-content: center;
+        box-shadow: 0 4px 8px 0 #f5f2f2 inset, 0 6px 20px 0 #f5f2f2 inset;
+        border-radius: 20px;
+    }
+    h1 {
+        font-family: Gotham, Tahoma, sans-serif;
+        font-weight: 1000;
+        text-align: center;
+    }
+    h3 {
+        color: #5e5e5e;
+        font-family: Helvetica, Sans-serif;
+        text-align: center;
     }
      .wpo365-mssignin-wrapper {
                     box-sizing: border-box;

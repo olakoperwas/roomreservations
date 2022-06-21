@@ -17,12 +17,46 @@
         </g-gantt-chart>
     </b-row>
     <p>Office plan</p>
+
+<!-- <v-stage >
+    <v-group
+      v-for="room in floor_rooms"
+      :key="room.roomId"
+      :config="{
+        x: room.x,
+        y: room.y,
+      }"
+    >
+  <v-rect
+    :key="room.roomId"
+    :config="{
+      width: room.width,
+      height: room.height,
+      fill: room.color,
+      stroke: 'black',
+      strokeWidth: 3,
+    }"
+  />
+  <v-text
+    :config="{
+      text: 'oooo',
+    }"
+  />
+</v-group>
+</v-stage> -->
+
     <div class="row justify-content-md-center">
+      
       <div class="col-8" :key="date">
+        <div class="konva">
         <v-stage :config="configKonva">
         <v-layer ref="layer">
+          <v-group
+          v-for="room in floor_rooms"
+            :key="room.roomId">
+            
             <v-rect
-              v-for="room in floor_rooms"
+             
               @click="handleClickOnRoom(room.roomId)"
               :key="room.roomId"
               :config="{
@@ -33,10 +67,20 @@
                 height: room.height,
                 fill: room.color,
                 stroke: room.stroke,
-              }"
-            ></v-rect>
+              }"             
+            >
+            </v-rect>
+            <v-text
+    :config="{
+      x: room.x +4,
+      y: room.y + 4,
+      text: room.name,
+    }"
+  />
+</v-group>
           </v-layer>
       </v-stage>
+      </div>
       </div>
       <div class="col-4">
         <div>
@@ -47,6 +91,11 @@
         </div>
 
       </div>
+        <!-- <b-button v-b-modal.modal-1>Launch demo modal</b-button>
+
+  <b-modal id="modal-1" title="BootstrapVue">
+    <p class="my-4">Hello from modal!</p>
+  </b-modal> -->
   </div>
   </div>
 </template>
@@ -110,7 +159,7 @@ import {ref} from "vue";
         },
   async mounted() {
     this.token = await authAzure.acquireToken()
-        await fetch("http://192.168.196.9:8080/api/floor?number=1", {
+        await fetch("http://localhost:8080/api/floor?number=1", {
           headers: {
             'Accept': 'application/json',
             'X-My-Custom-Header': 'value-v',
@@ -125,6 +174,7 @@ import {ref} from "vue";
                 this.floor_rooms[r.roomId] = r
                 this.floor_rooms[r.roomId].color = 'grey'
                 this.floor_rooms[r.roomId].stroke = 'white'
+                this.floor_rooms[r.roomId].name = r.name
             })
           })
           .catch(err => console.log(err))  
@@ -136,7 +186,6 @@ import {ref} from "vue";
         }
         this.selectRoom(roomId)
         this.floor_rooms[roomId].stroke = 'black'
-       // this.getRoomReservations(roomId)
     },
   async getRoomReservations(room_id){
         if(this.date[1]!=null) {
@@ -150,7 +199,7 @@ import {ref} from "vue";
         console.log(this.ganttChartStart)
         console.log(this.ganttChartEnd)
         console.log(room_id)
-        await fetch('http://192.168.196.9:8080/api/reservations/room', {
+        await fetch('http://localhost:8080/api/reservations/room', {
                   method: 'POST',
                   headers: {
                   'Accept': 'application/json, text/plain, */*',
@@ -195,7 +244,7 @@ import {ref} from "vue";
               startDate: this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+' '+("0" + this.date[0].getUTCHours()).slice(-2)+':'+("0" + this.date[0].getUTCMinutes()).slice(-2)+':'+"00",
               endDate: this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2)+' '+("0" + this.date[1].getUTCHours()).slice(-2)+':'+("0" + this.date[1].getUTCMinutes()).slice(-2)+':'+"00"
         }
-        await fetch('http://192.168.196.9:8080/api/reservations/floor',{
+        await fetch('http://localhost:8080/api/reservations/floor',{
             method: 'POST',
             headers:{
               'Authorization' : 'Bearer ' + this.token,
@@ -225,7 +274,7 @@ import {ref} from "vue";
         startDate: this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+' '+("0" + this.date[0].getUTCHours()).slice(-2)+':'+("0" + this.date[0].getUTCMinutes()).slice(-2)+':'+"00",
         endDate: this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2)+' '+("0" + this.date[1].getUTCHours()).slice(-2)+':'+("0" + this.date[1].getUTCMinutes()).slice(-2)+':'+"00"
     }
-    await fetch('http://192.168.196.9:8080/api/reservation/save',{
+    await fetch('http://localhost:8080/api/reservation/save',{
       method: 'POST',
       headers: {
         'Authorization' : 'Bearer ' + this.token,
@@ -263,8 +312,9 @@ import {ref} from "vue";
 </script>
 
 <style>
-#kanva {
-border: 1px solid black;
+.konva {
+background-color: beige;
+height: 500px;
 }
 
 @media (min-width: 1024px) {
