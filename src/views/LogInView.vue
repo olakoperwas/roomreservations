@@ -54,7 +54,7 @@ import authAzure from '../services/auth-azure.service';
                     }
                 }).then(res => {
                     if(res.status == 200){
-                        this.$router.push({ name: "reservations" });
+                        this.$router.push({ name: "home" });
                     }    
                 })
             }    

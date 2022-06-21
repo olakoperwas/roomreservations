@@ -16,7 +16,7 @@
           :bars="row.bars"/>
         </g-gantt-chart>
     </b-row>
-    <p>Office plan</p>
+    
 
 <!-- <v-stage >
     <v-group
@@ -49,8 +49,10 @@
       
       <div class="col-8" :key="date">
         <div class="konva">
+          <h3>Office plan</h3>
         <v-stage :config="configKonva">
         <v-layer ref="layer">
+<<<<<<< HEAD
             <v-group
               v-for="room in floor_rooms"
               :key="room.roomId">
@@ -94,14 +96,49 @@
                 }"
               />
             </v-group>
+=======
+          <v-group
+          v-for="room in floor_rooms"
+            :key="room.roomId">
+            
+            <v-rect
+             
+              @click="handleClickOnRoom(room.roomId)"
+              :key="room.roomId"
+              :config="{
+                x: room.x,
+                y: room.y,
+                id: room.roomId + ' ',
+                width: room.width,
+                height: room.height,
+                fill: room.color,
+                stroke: room.stroke,
+              }"             
+            >
+            </v-rect>
+            <v-text
+    :config="{
+      x: room.x +4,
+      y: room.y + 4,
+      text: room.name,
+      fontStyle: 'bold',
+    }"
+  />
+</v-group>
+>>>>>>> 252328eb6311d7ffd9cc252b6b5ca4b9aca6d72d
           </v-layer>
       </v-stage>
       </div>
       </div>
       <div class="col-4">
+        <p>Choose date and time from calendar</p>
         <div>
             <Datepicker v-model="date" @update:modelValue="updatereservations()" range inline/>
         </div>
+        <p>
+
+
+        </p>
         <div>
           <b-button v-if="!isLoading" @click="reserveRoom()">Reserve</b-button>
           <b-button v-else variant="primary" disabled>
@@ -288,7 +325,11 @@ import {ref} from "vue";
           for(const [key, value] of Object.entries(res)){
             var color = 'grey'
             const isBooked = value.isReserved;
+<<<<<<< HEAD
             color = isBooked ? 'tomato' : 'limeGreen'
+=======
+            color = isBooked ? '#b85c65' : '#8bbf88'
+>>>>>>> 252328eb6311d7ffd9cc252b6b5ca4b9aca6d72d
             console.log("roomId: " , value.roomId)
             console.log("isBooked: ", isBooked)
             console.log("color: ", color)
@@ -299,8 +340,7 @@ import {ref} from "vue";
   },
   async reserveRoom(){
     this.isLoading = true;
-    console.log("ładuje się")
-    const body = {
+        const body = {
         roomId: this.selectedRoom,
         participantUsers: [],
         startDate: this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+' '+("0" + this.date[0].getUTCHours()).slice(-2)+':'+("0" + this.date[0].getUTCMinutes()).slice(-2)+':'+"00",
@@ -317,9 +357,15 @@ import {ref} from "vue";
     }).then(() => {
         this.updateReservationsState()
         this.getRoomReservations(body.roomId)
-    }).then(()=>this.isLoading = false)
+    }).then(()=> {
+      this.isLoading = false
+      })
     .catch((error) => {
       this.isLoading = false
+      this.$notify({
+        text: 'Wystąpił błąd przy rezerwacji',
+        type: 'error',
+      });
     })
   },
   selectRoom(room_id){
@@ -349,7 +395,10 @@ import {ref} from "vue";
 <style>
 .konva {
 background-color: beige;
-height: 500px;
+height: 540px;
+}
+h3 {
+  text-align: center;
 }
 
 @media (min-width: 1024px) {

@@ -17,9 +17,10 @@ import Emitter from 'tiny-emitter';
 import store from './store';
 import authAzure from './services/auth-azure.service'
 import ganttastic from '@infectoone/vue-ganttastic'
-
+import Notifications from '@kyvg/vue3-notification'
 
 const app = createApp(App)
+app.use(Notifications)
 app.use(Datepicker)
 app.use(VueTimepicker)
 app.use(VueCookies)
