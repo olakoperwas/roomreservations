@@ -51,33 +51,49 @@
         <div class="konva">
         <v-stage :config="configKonva">
         <v-layer ref="layer">
-          <v-group
-          v-for="room in floor_rooms"
-            :key="room.roomId">
-            
-            <v-rect
-             
-              @click="handleClickOnRoom(room.roomId)"
-              :key="room.roomId"
-              :config="{
-                x: room.x,
-                y: room.y,
-                id: room.roomId + ' ',
-                width: room.width,
-                height: room.height,
-                fill: room.color,
-                stroke: room.stroke,
-              }"             
-            >
-            </v-rect>
-            <v-text
-    :config="{
-      x: room.x +4,
-      y: room.y + 4,
-      text: room.name,
-    }"
-  />
-</v-group>
+            <v-group
+              v-for="room in floor_rooms"
+              :key="room.roomId">
+              <v-rect
+                @click="handleClickOnRoom(room.roomId)"
+                :key="room.roomId"
+                :config="{
+                  x: room.x,
+                  y: room.y,
+                  id: room.roomId + ' ',
+                  width: room.width,
+                  height: room.height,
+                  fill: room.color,
+                  stroke: room.stroke,
+                }"             
+              >
+              </v-rect>
+              <v-text
+                :config="{
+                  x: room.x + 4,
+                  y: room.y + 4,
+                  text: room.number,
+                  fontSize: 15,
+                  fontStyle: 'bold',
+                  padding: 10,
+                  color: 'white'
+                }"
+              />
+              <v-text
+                :config="{
+                  offsetY: -25, 
+                  x: room.x + 4,
+                  y: room.y + 4,
+                  text: room.name,
+                  fontSize: 15,
+                  fontStyle: 'italic',
+                  padding: 10,
+                  height: room.height,
+                  width: room.width,
+                  align: 'center'
+                }"
+              />
+            </v-group>
           </v-layer>
       </v-stage>
       </div>
@@ -126,7 +142,8 @@ import {ref} from "vue";
             selectedRoom: null,
             ganttChartStart: "2020-03-01 07:00",
             ganttChartEnd: "2020-03-01 17:00",
-            reservations: {}
+            reservations: {},
+            username: authAzure.user().username,
               // {
               //   label: "Room 1",
               //   bars: ref([
@@ -164,7 +181,7 @@ import {ref} from "vue";
         },
   async mounted() {
     this.token = await authAzure.acquireToken()
-        await fetch("http://localhost:8080/api/floor?number=1", {
+        await fetch("http://192.168.196.9:8080/api/floor?number=1", {
           headers: {
             'Accept': 'application/json',
             'X-My-Custom-Header': 'value-v',
@@ -206,7 +223,7 @@ import {ref} from "vue";
         console.log(this.ganttChartStart)
         console.log(this.ganttChartEnd)
         console.log(room_id)
-        await fetch('http://localhost:8080/api/reservations/room', {
+        await fetch('http://192.168.196.9:8080/api/reservations/room', {
                   method: 'POST',
                   headers: {
                   'Accept': 'application/json, text/plain, */*',
@@ -219,13 +236,19 @@ import {ref} from "vue";
               .then(res => res.json())
               .then(res => {
                   const barsColl = res.map( r => {
+                        const backgroundColor = r.ownerEmail == this.username ? "Gold" : "SteelBlue"
                         return {
                           myStart: r.startDate.slice(0, -3),
                           myEnd: r.endDate.slice(0, -3),
                           ganttBarConfig: {
                             id: r.id,
                             hasHandless: false,
-                            label: r.ownerEmail
+                            label: r.ownerEmail,
+                            style: {
+                              borderRadius: "20px",
+                              color: "black",
+                              background: backgroundColor,
+                            }
                           }
                         }
                   })
@@ -251,7 +274,7 @@ import {ref} from "vue";
               startDate: this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+' '+("0" + this.date[0].getUTCHours()).slice(-2)+':'+("0" + this.date[0].getUTCMinutes()).slice(-2)+':'+"00",
               endDate: this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2)+' '+("0" + this.date[1].getUTCHours()).slice(-2)+':'+("0" + this.date[1].getUTCMinutes()).slice(-2)+':'+"00"
         }
-        await fetch('http://localhost:8080/api/reservations/floor',{
+        await fetch('http://192.168.196.9:8080/api/reservations/floor',{
             method: 'POST',
             headers:{
               'Authorization' : 'Bearer ' + this.token,
@@ -265,7 +288,7 @@ import {ref} from "vue";
           for(const [key, value] of Object.entries(res)){
             var color = 'grey'
             const isBooked = value.isReserved;
-            color = isBooked ? 'red' : 'green'
+            color = isBooked ? 'tomato' : 'limeGreen'
             console.log("roomId: " , value.roomId)
             console.log("isBooked: ", isBooked)
             console.log("color: ", color)
@@ -283,7 +306,7 @@ import {ref} from "vue";
         startDate: this.date[0].getFullYear()+'-'+("0"+(this.date[0].getMonth()+1)).slice(-2)+'-'+("0" + this.date[0].getDate()).slice(-2)+' '+("0" + this.date[0].getUTCHours()).slice(-2)+':'+("0" + this.date[0].getUTCMinutes()).slice(-2)+':'+"00",
         endDate: this.date[1].getFullYear()+'-'+("0"+(this.date[1].getMonth()+1)).slice(-2)+'-'+("0" + this.date[1].getDate()).slice(-2)+' '+("0" + this.date[1].getUTCHours()).slice(-2)+':'+("0" + this.date[1].getUTCMinutes()).slice(-2)+':'+"00"
     }
-    await fetch('http://localhost:8080/api/reservation/save',{
+    await fetch('http://192.168.196.9:8080/api/reservation/save',{
       method: 'POST',
       headers: {
         'Authorization' : 'Bearer ' + this.token,

@@ -50,7 +50,7 @@
         methods:{
             async getReservations(){
                 this.isLoading = true
-                fetch("http://localhost:8080/api/reservations/user", {
+                fetch("http://192.168.196.9:8080/api/reservations/user", {
                     method: 'GET',
                     headers: {
                     'Accept': 'application/json, text/plain, */*',
