@@ -17,7 +17,7 @@
             <b-tbody>
                 <b-tr v-if="!isLoading" v-for="reservation in reservations">
                     <b-td>{{reservation.id}}</b-td>
-                    <b-td>{{reservation.room.number}} : {{reservation.room.name}}</b-td>
+                    <b-td>{{reservation.roomNumber}} : {{reservation.roomName}}</b-td>
                     <b-td>{{reservation.startDate}}</b-td>
                     <b-td>{{reservation.endDate}}</b-td>
                 </b-tr>

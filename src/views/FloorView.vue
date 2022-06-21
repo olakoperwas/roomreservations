@@ -52,12 +52,10 @@
           <h3>Office plan</h3>
         <v-stage :config="configKonva">
         <v-layer ref="layer">
-<<<<<<< HEAD
             <v-group
               v-for="room in floor_rooms"
-              :key="room.roomId">
+              :key="room.roomId"  @click="handleClickOnRoom(room.roomId)">
               <v-rect
-                @click="handleClickOnRoom(room.roomId)"
                 :key="room.roomId"
                 :config="{
                   x: room.x,
@@ -96,36 +94,6 @@
                 }"
               />
             </v-group>
-=======
-          <v-group
-          v-for="room in floor_rooms"
-            :key="room.roomId">
-            
-            <v-rect
-             
-              @click="handleClickOnRoom(room.roomId)"
-              :key="room.roomId"
-              :config="{
-                x: room.x,
-                y: room.y,
-                id: room.roomId + ' ',
-                width: room.width,
-                height: room.height,
-                fill: room.color,
-                stroke: room.stroke,
-              }"             
-            >
-            </v-rect>
-            <v-text
-    :config="{
-      x: room.x +4,
-      y: room.y + 4,
-      text: room.name,
-      fontStyle: 'bold',
-    }"
-  />
-</v-group>
->>>>>>> 252328eb6311d7ffd9cc252b6b5ca4b9aca6d72d
           </v-layer>
       </v-stage>
       </div>
@@ -257,9 +225,6 @@ import {ref} from "vue";
                 startDate: this.ganttChartStart + ':00',
                 endDate: this.ganttChartEnd + ':00',
           }
-        console.log(this.ganttChartStart)
-        console.log(this.ganttChartEnd)
-        console.log(room_id)
         await fetch('http://192.168.196.9:8080/api/reservations/room', {
                   method: 'POST',
                   headers: {
@@ -293,7 +258,6 @@ import {ref} from "vue";
                     label: this.floor_rooms[room_id].name,
                     bars: ref(barsColl)
                   }
-                  console.log(this.reservations)
                 })
               .catch(error => console.log(error))
         }
@@ -325,14 +289,7 @@ import {ref} from "vue";
           for(const [key, value] of Object.entries(res)){
             var color = 'grey'
             const isBooked = value.isReserved;
-<<<<<<< HEAD
             color = isBooked ? 'tomato' : 'limeGreen'
-=======
-            color = isBooked ? '#b85c65' : '#8bbf88'
->>>>>>> 252328eb6311d7ffd9cc252b6b5ca4b9aca6d72d
-            console.log("roomId: " , value.roomId)
-            console.log("isBooked: ", isBooked)
-            console.log("color: ", color)
             this.floor_rooms[value.roomId].color = color
           }
         }) 
@@ -354,16 +311,33 @@ import {ref} from "vue";
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(body)
-    }).then(() => {
+    })
+    .then((response) => {
+        console.log(response)
+      if (response.status == 201){
+          console.log(response.status)
+          this.$notify({
+            title: "Your reservation is done.",
+            type: 'success',
+          });
         this.updateReservationsState()
         this.getRoomReservations(body.roomId)
-    }).then(()=> {
+      }
+      if(response.status == 409){
+        this.$notify({
+          text: "Cannot make reservation",
+          type: 'error',
+        });
+      }
+    })
+    .then(()=> {
       this.isLoading = false
-      })
+    })
     .catch((error) => {
+      console.log(error)
       this.isLoading = false
-      this.$notify({
-        text: 'Wystąpił błąd przy rezerwacji',
+        this.$notify({
+        title: error.response,
         type: 'error',
       });
     })
